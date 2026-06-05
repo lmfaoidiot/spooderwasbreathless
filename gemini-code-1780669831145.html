@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Situations & Soft Sweaters</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#0d0b14;color:#e8e2f5;font-family:'Lora',Georgia,serif;overflow-x:hidden}
+        .stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+        .page{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:0 0 100px}
+        .lights-header{position:relative;height:130px;overflow:visible;margin-bottom:4px}
+        .lights-svg{width:100%;height:100%}
+        .title-block{text-align:center;padding:0 2rem 1.5rem}
+        .subtitle-tag{display:inline-block;font-family:'Lora',serif;font-style:italic;font-size:12px;color:#a89ec4;letter-spacing:.12em;margin-bottom:12px}
+        .main-title{font-family:'Playfair Display',Georgia,serif;font-size:34px;font-weight:400;line-height:1.2;color:#f5f0ff;margin-bottom:6px}
+        .main-title em{color:#c9a96e;font-style:italic}
+        .divider{width:48px;height:1px;background:#c9a96e;margin:14px auto}
+        .char-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:0}
+        .char-tag{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:12px;font-size:13px}
+        .char-tag.w{background:rgba(135,170,220,.12);border:.5px solid rgba(135,170,220,.3);color:#a8c4e8}
+        .char-tag.s{background:rgba(201,169,110,.12);border:.5px solid rgba(201,169,110,.3);color:#e8dfc8}
+        .char-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+        .w .char-dot{background:#87aadc}.s .char-dot{background:#c9a96e}
+        .char-lbl{font-family:'Playfair Display',serif;font-weight:500}
+        .char-desc{font-size:11px;opacity:.7;font-style:italic}
+        .chapters{display:flex;justify-content:center;gap:5px;padding:20px 2rem 4px;flex-wrap:wrap}
+        .cbtn{background:transparent;border:.5px solid #3a3256;border-radius:20px;color:#9b91b8;font-family:'Lora',serif;font-size:11px;padding:5px 12px;cursor:pointer;transition:all .3s;white-space:nowrap}
+        .cbtn:hover{border-color:#c9a96e;color:#e8dfc8}
+        .cbtn.active{background:rgba(201,169,110,.12);border-color:#c9a96e;color:#e8dfc8}
+        .progress-bar{display:flex;gap:4px;justify-content:center;padding:14px 2rem 0}
+        .pip{width:20px;height:2px;border-radius:2px;background:#2a253d;transition:background .3s}
+        .pip.done{background:#c9a96e}.pip.active{background:#87aadc}
+        .sec{display:none;padding:0 2rem;animation:fadeIn .6s ease forwards}
+        .sec.visible{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .scene-hdr{font-family:'Lora',serif;font-size:11px;letter-spacing:.18em;color:#c9a96e;text-transform:uppercase;margin-bottom:20px;padding-top:24px}
+        .prose p{font-size:15px;line-height:1.9;color:#ccc4e0;margin-bottom:16px}
+        .prose p:last-child{margin-bottom:0}
+        .prose .hl{color:#e8dfc8;font-style:italic}
+        .pq{border-left:2px solid #c9a96e;margin:28px 0;padding:12px 0 12px 20px;border-radius:0}
+        .pq p{font-family:'Playfair Display',serif;font-size:17px;font-style:italic;line-height:1.65;color:#e8dfc8;margin:0}
+        .pq .attr{font-size:11px;color:#8a82a6;margin-top:8px;font-style:normal;letter-spacing:.08em;font-family:'Lora',serif}
+        .dbox{background:rgba(255,255,255,.03);border-radius:12px;padding:20px;margin:22px 0;border:.5px solid rgba(255,255,255,.06)}
+        .dline{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+        .dline:last-child{margin-bottom:0}
+        .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:7px}
+        .sdot.w{background:#87aadc}.sdot.s{background:#c9a96e}
+        .dtxt{font-size:14px;line-height:1.75;color:#ccc4e0;font-style:italic}
+        .dspk{font-style:normal;font-size:11px;color:#8a82a6;letter-spacing:.06em;margin-bottom:3px;font-family:'Lora',serif}
+        .detail-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}
+        .dcard{background:rgba(255,255,255,.03);border-radius:10px;padding:14px 16px;border:.5px solid rgba(255,255,255,.06)}
+        .dcard-icon{font-size:18px;margin-bottom:8px;display:block;color:#c9a96e}
+        .dcard-lbl{font-size:10px;letter-spacing:.12em;color:#6a6285;text-transform:uppercase;margin-bottom:4px;font-family:'Lora',serif}
+        .dcard-val{font-size:13px;color:#ccc4e0;line-height:1.55}
+        .memory-strip{display:flex;flex-direction:column;gap:10px;margin:22px 0}
+        .mem{display:flex;gap:14px;align-items:flex-start;padding:14px;background:rgba(255,255,255,.025);border-radius:10px;border:.5px solid rgba(255,255,255,.05)}
+        .mem-num{font-family:'Playfair Display',serif;font-size:22px;color:#3a3256;flex-shrink:0;line-height:1;padding-top:2px}
+        .mem-txt{font-size:13.5px;line-height:1.75;color:#b0a8c8;font-style:italic}
+        .ending{text-align:center;padding:36px 0 20px}
+        .end-sym{font-size:20px;color:#c9a96e;display:block;margin-bottom:18px;letter-spacing:14px}
+        .ending p{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;color:#8a82a6;line-height:1.9}
+        .nav-row{display:flex;justify-content:space-between;align-items:center;padding:22px 2rem 0}
+        .nbtn{background:transparent;border:.5px solid #3a3256;color:#9b91b8;font-family:'Lora',serif;font-size:12px;padding:8px 18px;border-radius:20px;cursor:pointer;transition:all .3s}
+        .nbtn:hover:not(:disabled){border-color:#87aadc;color:#a8c4e8}
+        .nbtn:disabled{opacity:.2;cursor:default}
+        .pg-ct{font-size:11px;color:#5a5275;font-family:'Lora',serif;letter-spacing:.08em}
+        .season-banner{display:flex;gap:8px;align-items:center;background:rgba(135,170,220,.07);border:.5px solid rgba(135,170,220,.2);border-radius:10px;padding:12px 16px;margin:22px 0}
+        .season-icon{color:#87aadc;font-size:14px;flex-shrink:0;font-family:'Lora',serif;font-style:italic}
+        .season-txt{font-size:13px;color:#a8c4e8;line-height:1.6}
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+        .two-col-lbl{font-size:10px;letter-spacing:.14em;color:#c9a96e;text-transform:uppercase;margin-bottom:8px;font-family:'Lora',serif}
+        .two-col-content{font-size:13.5px;line-height:1.7;color:#b0a8c8;font-style:italic}
+    </style>
+</head>
+<body>
+
+<canvas class="stars-canvas" id="sc"></canvas>
+
+<div class="page">
+
+    <div class="lights-header">
+      <svg class="lights-svg" viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg" id="lsvg">
+        <style>@keyframes bf{0%,100%{opacity:.85}50%{opacity:.4}}</style>
+      </svg>
+    </div>
+
+    <div class="title-block">
+      <span class="subtitle-tag">a love story in seven parts</span>
+      <h1 class="main-title">Sticky Situations &<br><em>Soft Sweaters</em></h1>
+      <div class="divider"></div>
+      <div class="char-row">
+        <div class="char-tag w"><span class="char-dot"></span><span><span class="char-lbl">Winter</span> <span class="char-desc">cool, quiet, easily chilled</span></span></div>
+        <div class="char-tag s"><span class="char-dot"></span><span><span class="char-lbl">Spooder</span> <span class="char-desc">chaotic, creative, 100mph</span></span></div>
+      </div>
+    </div>
+
+    <div class="chapters" id="chapNav">
+      <button class="cbtn active" onclick="goTo(0)">I. The Text</button>
+      <button class="cbtn" onclick="goTo(1)">II. The Day Before</button>
+      <button class="cbtn" onclick="goTo(2)">III. The Apartment</button>
+      <button class="cbtn" onclick="goTo(3)">IV. The Kitchen</button>
+      <button class="cbtn" onclick="goTo(4)">V. The Couch</button>
+      <button class="cbtn" onclick="goTo(5)">VI. The Quiet</button>
+      <button class="cbtn" onclick="goTo(6)">VII. Home</button>
+    </div>
+
+    <div class="progress-bar" id="pb">
+      <div class="pip active" id="p0"></div><div class="pip" id="p1"></div><div class="pip" id="p2"></div>
+      <div class="pip" id="p3"></div><div class="pip" id="p4"></div><div class="pip" id="p5"></div>
+      <div class="pip" id="p6"></div>
+    </div>
+
+    <!-- CHAPTER 1 -->
+    <div class="sec visible" id="s0">
+      <div class="scene-hdr">Chapter I — The Text</div>
+      <div class="prose">
+        <p>It started, as most things with Spooder did, with a text that arrived at exactly the wrong time and was completely impossible to ignore.</p>
+        <p>Winter was in the middle of a meeting. Not a particularly important meeting — none of them ever were, not really, just forty minutes of people talking around the thing they actually needed to decide — when the phone buzzed. Three times. In quick succession. Which was Spooder's signature. He had never once sent a single text when he could send three.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:43 am</div><div class="dtxt">"tonight. my place. trust me."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:43 am</div><div class="dtxt">"i have a plan"</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:43 am</div><div class="dtxt">"also maybe bring the big sweater. the cream one"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter · 11:46 am</div><div class="dtxt">"you have a plan."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:46 am</div><div class="dtxt">"YES. ok some of it is still coming together but the core of it is SOLID"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter · 11:47 am</div><div class="dtxt">"that's not reassuring."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:47 am</div><div class="dtxt">"it's going to be good i promise. also i need to know: do you want the drink with the cinnamon or without"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter · 11:48 am</div><div class="dtxt">"...with. obviously with."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder · 11:48 am</div><div class="dtxt">"PERFECT. ok go back to your meeting i have things to do"</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>Winter went back to the meeting. Contributed almost nothing to the next twenty-two minutes of it. Looked out the window at the grey February sky and thought about <span class="hl">the big cream sweater, hanging on the back of the bedroom door at home.</span></p>
+        <p>The <span class="hl">fine</span> that arrived at noon was doing a lot of heavy lifting.</p>
+        <p>It always did, with Spooder. There was a whole vocabulary that had developed between them over the months — the shorthand, the specific cadence of teasing that meant the opposite of what it said. <span class="hl">Fine</span> didn't mean reluctant. It meant yes. It had for a while now.</p>
+      </div>
+
+      <div class="pq">
+        <p>"The thing about loving someone chaotic is that eventually you stop bracing for the chaos. You start leaning into it. You start bringing the sweater they asked for without making them ask twice."</p>
+      </div>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div class="sec" id="s1">
+      <div class="scene-hdr">Chapter II — The Day Before</div>
+      <div class="prose">
+        <p>What Winter didn't know — couldn't have known, not yet — was that Spooder had been planning this since the previous Thursday.</p>
+        <p>Not in the way that other people planned things. Spooder didn't make lists. He didn't sit down with a notebook and map out the evening in careful stages. He planned the way he did everything: in motion, in fragments, across seventeen different browser tabs and two separate notes apps and one long voice memo he recorded to himself at 2am while pacing the kitchen, talking too fast about fairy lights.</p>
+      </div>
+
+      <div class="memory-strip">
+        <div class="mem"><span class="mem-num">01</span><span class="mem-txt">Thursday, 11pm: Noticed that Winter had been staring out windows a lot lately. The kind of staring that means the inside of your head is very loud and the outside world is very grey.</span></div>
+        <div class="mem"><span class="mem-num">02</span><span class="mem-txt">Friday, 2am: The fairy light idea. Couldn't sleep. Started sketching the pattern on a napkin. Texted himself a photo of it at 2:47am "don't lose this".</span></div>
+        <div class="mem"><span class="mem-num">03</span><span class="mem-txt">Saturday morning: Bought four additional blankets. Reconsidered. Bought two more. Stood in the checkout line second-guessing the throw pillow. Bought the throw pillow.</span></div>
+        <div class="mem"><span class="mem-num">04</span><span class="mem-txt">Sunday: Practiced the drink four times. Got it right on the third attempt. Made a fifth for margin of error.</span></div>
+        <div class="mem"><span class="mem-num">05</span><span class="mem-txt">Monday morning: Sent the text. Felt like he'd been holding it for five days, which he had.</span></div>
+      </div>
+
+      <div class="prose">
+        <p>This was the thing that people underestimated about Spooder: the chaos was never aimless. It was directional. It aimed itself at the people he loved and it built things for them — elaborate, impractical, <span class="hl">deeply considered</span> things. The fairy lights weren't decoration. They were a language. The blankets weren't comfort. They were a sentence that started with <em>I noticed you were cold</em> and ended somewhere much larger.</p>
+        <p>By six in the evening, the apartment was unrecognizable.</p>
+        <p>By six-fifteen, so was the kitchen.</p>
+      </div>
+
+      <div class="two-col">
+        <div class="two-col-item">
+          <div class="two-col-lbl">What Spooder told Winter</div>
+          <div class="two-col-content">"I have a plan. It's mostly ready. Come at seven."</div>
+        </div>
+        <div class="two-col-item">
+          <div class="two-col-lbl">What was actually happening</div>
+          <div class="two-col-content">Forty-seven feet of fairy lights. A minor cocoa powder incident. One near-miss with a step stool. Pure, uncut love, expressed at full velocity.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAPTER 3 -->
+    <div class="sec" id="s2">
+      <div class="scene-hdr">Chapter III — The Apartment</div>
+      <div class="prose">
+        <p>The door opened before Winter knocked.</p>
+        <p>This was not unusual. Spooder had a particular sensitivity to footsteps on the stairs that Winter had long since stopped trying to explain. He simply knew. The door opened, and there he was: apron on, cocoa powder on one cheekbone, eyes lit up with the specific brightness they got when he had done something he was extremely proud of and was trying very hard not to immediately announce it.</p>
+        <p>He failed.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Okay — look up."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"...Spooder."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"I know."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"How long did this take you."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Not that long. Couple hours. Come in, come in — I'm in the middle of something in the kitchen—"</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>The ceiling was extraordinary.</p>
+        <p>That was the only word for it, and even that didn't quite fit. Spooder had strung the lights the way he strung everything — not in straight lines, not in neat rows, but in <span class="hl">patterns that followed their own internal logic</span>, sweeping from corner to corner in overlapping arcs, creating depth where there had been none, making the ceiling of a small apartment in February feel like something other than itself.</p>
+        <p>It looked like stars. Not perfectly — not the organized constellations of a planetarium, nothing that could be mapped or charted. It looked like stars the way actual stars look: clustered where they want to cluster, sparse where they want to be sparse, following rules that have nothing to do with tidiness and everything to do with some older, denser kind of beauty.</p>
+        <p>Winter stood in the doorway for a moment longer than was strictly necessary.</p>
+      </div>
+
+      <div class="detail-row">
+        <div class="dcard"><span class="dcard-icon">✦</span><div class="dcard-lbl">The ceiling</div><div class="dcard-val">47 feet of fairy lights. No crossover. Two hours. His own algorithm, explained at length to no one.</div></div>
+        <div class="dcard"><span class="dcard-icon">✦</span><div class="dcard-lbl">The couch</div><div class="dcard-val">Seven blankets. Eight, if you counted the one folded underneath as a base layer. He counted it. He bought the throw pillow.</div></div>
+        <div class="dcard"><span class="dcard-icon">✦</span><div class="dcard-lbl">The music</div><div class="dcard-val">A playlist built in forty minutes. Soft percussion, minor keys, the kind of songs that feel like rain against a window you're not standing in.</div></div>
+        <div class="dcard"><span class="dcard-icon">✦</span><div class="dcard-lbl">The apron</div><div class="dcard-val">Belonged to a neighbor. Borrowed under unclear circumstances. Did not fit his energy. He was wearing it anyway.</div></div>
+      </div>
+    </div>
+
+    <!-- CHAPTER 4 -->
+    <div class="sec" id="s3">
+      <div class="scene-hdr">Chapter IV — The Kitchen</div>
+      <div class="prose">
+        <p>The kitchen was a disaster in the way that Spooder's disasters always were: <span class="hl">evidence of enormous effort</span>, rather than carelessness. This was an important distinction. The cocoa powder on the counter was the cocoa powder of someone who had made the drink four and a half times trying to get it right. The used spoons lined up along the backsplash were the spoons of someone who had tasted and adjusted and tasted again with genuine concentration.</p>
+        <p>He nearly tripped over his own feet crossing from the counter to where Winter stood.</p>
+        <p>This happened with some regularity. Spooder's body was, in general, trying to keep up with a brain that had already moved on to the next thing, the next step, the next moment he was trying to reach. He navigated the world at a slight forward lean, always just slightly ahead of himself.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Here. Careful, it's hot — not too hot, I let it sit for a minute — is it the right temperature?"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"It's fine, I—"</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Because the first three attempts were too hot and the fourth one I might have overcorrected and I wasn't sure so I—"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"Spooder."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Yeah?"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"It's perfect."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"...yeah?"</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"Yes. Also you have cocoa powder on your face."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"I know. It's fine. I'm leaving it. Come look at the lights from the couch, the angle is better—"</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>He was already moving, already gesturing, already three steps ahead and looking back over his shoulder to make sure Winter was following. Which Winter was. Which Winter, it was becoming clear, always would be.</p>
+      </div>
+
+      <div class="pq">
+        <p>"There is a particular kind of love that expresses itself as motion. That can't sit still because it's too full. That sets up fairy lights because it can't think of another way to say: I see you. You matter. I wanted tonight to be exactly what you needed and I hope I got it right."</p>
+        <p class="attr">— on Spooder, specifically</p>
+      </div>
+    </div>
+
+    <!-- CHAPTER 5 -->
+    <div class="sec" id="s4">
+      <div class="scene-hdr">Chapter V — The Couch</div>
+      <div class="prose">
+        <p>They were buried inside the blankets within ten minutes.</p>
+        <p>This was a documented phenomenon, the speed with which Spooder could create a fortress out of soft furnishings. He had a gift for it — for finding the exact configuration that turned a couch into something more like a den, a hollow, a place that had walls and a ceiling and felt separate from the rest of the world in all the ways that mattered. The blankets were arranged in a specific order that he had explained at some length and that Winter had followed along with a fond, drowsy attention that understood maybe forty percent of the structural logic and all of the intention behind it.</p>
+        <p>The drink was warm in Winter's hands. The music was doing something quiet and unhurried in the background. Above them, the lights were doing their best impression of a sky.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"You know your entire counter is covered in cocoa powder."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"The important thing is that the drink is good."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"And the three spoons on the backsplash."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Quality control spoons. Very important. Don't touch them."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"There's a step stool in the hallway and I'm choosing not to ask."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Good choice. How's the drink."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"Still perfect."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"..."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"okay good"</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>Spooder's hands had found the hem of Winter's sweater. This happened automatically, without discussion, with the ease of something that had happened many times before — his fingers tangling in the soft fabric, not holding on exactly, just present. Just <span class="hl">touching the edge of Winter</span> the way he always needed to when they were this close, as though making sure.</p>
+        <p>His chin came to rest on Winter's shoulder. Winter leaned back into him. The lights above them shifted almost imperceptibly as the old building breathed, and the music moved into something slower.</p>
+        <p>The tiredness that had made the day feel like something to survive had turned, somewhere in the last half hour, into something else. Something that felt more like exhale. The particular relief of being somewhere that doesn't require you to hold yourself together, because someone else has quietly taken the weight of that.</p>
+      </div>
+
+      <div class="pq">
+        <p>"Not every safe place looks like quiet. Sometimes it looks like a person who moves too fast and talks too much and once spent two hours hanging fairy lights in a specific pattern just because they wanted you to have somewhere beautiful to rest your eyes."</p>
+      </div>
+    </div>
+
+    <!-- CHAPTER 6 -->
+    <div class="sec" id="s5">
+      <div class="scene-hdr">Chapter VI — The Quiet</div>
+      <div class="prose">
+        <p>It got quiet the way evenings sometimes do when the right people are in the right room.</p>
+        <p>Not silent. Spooder was constitutionally incapable of silence for any extended period — there was the small restless energy of him, the slight movement, the occasional thought that made it out of his head and into the air as a murmur before he could decide whether to say it. But it was a comfortable kind of sound. Background. The verbal equivalent of the music playing softly underneath everything else.</p>
+        <p>Winter's mug was nearly empty. The playlist had cycled into something that moved slowly, almost underwater. Outside the window, the city was doing city things: sirens somewhere distant, wind, the ambient hum of all those lives proceeding. In here, there was just this. The lights and the blankets and the particular warmth of a person who had been thinking about holding you since this morning and was finally, quietly, doing exactly that.</p>
+      </div>
+
+      <div class="season-banner">
+        <span class="season-icon">Feb</span>
+        <span class="season-txt">It was the kind of February night that had no redeeming qualities outside of this one apartment. Cold in the particular way of months that have given up on being anything but cold. The kind of night that makes a warm room feel specifically, deliberately precious.</span>
+      </div>
+
+      <div class="prose">
+        <p>Spooder said it quietly. Into the space beside Winter's ear, with his chin still on Winter's shoulder and his hands still at the hem of the sweater. Not loudly. Not with the velocity that usually carried his sentences. This one arrived slowly, with the specific gravity of something that had been waiting all day to be said.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"I've been thinking about this since this morning. Just — this. Holding you. That was the whole thing I wanted. All day."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"...yeah?"</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Yeah. I missed you. It's been a weird week."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"It really has."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"I know you've been kind of — I just wanted to — you know. Make something good for you. Something that felt like a break from all of it."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"You did."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Good. That's — yeah. Good."</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>The quiet settled back around them. Spooder's arms tightened, just slightly. Winter didn't move. The lights above were doing their patient, golden work — holding the dark at arm's length, making the ceiling of a small apartment feel like the underside of something larger and more forgiving than the sky outside.</p>
+        <p>There are moments, in any relationship worth keeping, where all the words you have been accumulating — all the ways you have been trying to explain what the other person is to you — collapse into something smaller. Something that doesn't need language. Winter thought about the text from this morning and the three spoons and the step stool in the hallway and forty-seven feet of lights hung in a pattern that made no sense and perfect sense simultaneously.</p>
+        <p>The mug had gone cold. Neither of them noticed.</p>
+      </div>
+    </div>
+
+    <!-- CHAPTER 7 -->
+    <div class="sec" id="s6">
+      <div class="scene-hdr">Chapter VII — Home</div>
+      <div class="prose">
+        <p>Winter looked up at the ceiling.</p>
+        <p>The lights were extraordinary. They had been extraordinary since the moment Winter walked through the door, but there is a difference between noticing something and understanding it, and sometime in the last hour that gap had closed. The pattern Spooder had made — the overlapping arcs, the specific clusters of warmth — was not random. It never would have been random. Spooder's hands didn't do random. They did <span class="hl">deliberate things that looked like impulse</span>, structured things that read as chaos, careful things that arrived at full speed.</p>
+        <p>This was who he was. Winter knew this the way Winter now knew most things about Spooder: slowly at first, then all at once, in a moment of clarity that felt less like discovery and more like recognition.</p>
+      </div>
+
+      <div class="pq">
+        <p>"You think the chaos means something is fragile. You keep waiting for the energy to tip over into something you can't follow, something too fast, somewhere you can't keep up. And then you look around one evening at the ceiling he spent two hours on and you realize: this was never fragile. This was always the most deliberate thing you've ever been inside."</p>
+        <p class="attr">— Winter, not yet in words</p>
+      </div>
+
+      <div class="prose">
+        <p>They were total opposites. This had always been true and was still true and had at some point stopped meaning what Winter had once assumed it meant. Opposites as a warning. Opposites as incompatibility. Opposites as something that would eventually fracture along the fault lines of the things they didn't share.</p>
+        <p>Instead it had become something else. Something more like <span class="hl">counterweight</span>. The way one gear turns another. The way a cold room makes a warm sweater matter in a way it couldn't in June. Spooder's speed made Winter feel the stillness more. Winter's stillness gave Spooder's speed something to orbit around.</p>
+        <p>The playlist had gone quiet between songs. In the gap, Winter could hear Spooder breathing — that small, steady sound of someone fully at rest, fully present, exactly where they wanted to be. His hands had gone still too, finally, tangled in the hem of the sweater. The restless motion of him, channeled all day into fairy lights and practice mugs and carefully selected blankets, had arrived here. Had come to rest, exactly here.</p>
+      </div>
+
+      <div class="dbox">
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"You know you're going to have to take all those lights down eventually."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"No I'm not."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"You live here."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Exactly. I live here. They stay."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"...fair enough."</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"You can come back and look at them any time."</div></div></div>
+        <div class="dline"><span class="sdot w"></span><div><div class="dspk">Winter</div><div class="dtxt">"Yeah?"</div></div></div>
+        <div class="dline"><span class="sdot s"></span><div><div class="dspk">Spooder</div><div class="dtxt">"Yeah. Anytime. You don't even have to text first."</div></div></div>
+      </div>
+
+      <div class="prose">
+        <p>Outside, February continued being February. Cold and grey and indifferent to what was happening in this particular apartment on this particular evening. The city moved through its routines without reference to the two people buried under seven blankets on a couch beneath a ceiling of light.</p>
+        <p>Winter set the empty mug down on the floor. Spooder pulled the blanket up a little higher. The lights stayed on, soft and gold, doing their patient work of making the dark feel less like darkness and more like the space between stars — which is to say, not empty at all.</p>
+        <p>Some people come into your life and immediately rearrange all the furniture. They show up moving fast and leave all the lights on and fill every counter with evidence of how much they were trying. <span class="hl">They make the ceiling into something worth looking at.</span></p>
+        <p>The trick is recognizing, when you're inside it, that this is what home has always been — not the silence you thought you needed, but the warmth you didn't know you were waiting for. Not stillness. Somebody else's arms, and a terrible mess in the kitchen, and forty-seven feet of lights hung just for you.</p>
+      </div>
+
+      <div class="ending">
+        <span class="end-sym">— ✦ —</span>
+        <p>He kept the lights up.<br>Winter came back.<br><br>Neither of them needed to say what that meant.<br>They both already knew.</p>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nbtn" id="prevBtn" onclick="nav(-1)" disabled>← prev</button>
+      <span class="pg-ct" id="pgct">1 of 7</span>
+      <button class="nbtn" id="nextBtn" onclick="nav(1)">next →</button>
+    </div>
+
+</div>
+
+<script>
+let cur=0,tot=7;
+const secs=document.querySelectorAll('.sec');
+const btns=document.querySelectorAll('.cbtn');
+const pips=document.querySelectorAll('.pip');
+
+function goTo(i){
+  secs[cur].classList.remove('visible');
+  btns[cur].classList.remove('active');
+  cur=i;
+  secs[cur].classList.add('visible');
+  btns[cur].classList.add('active');
+  pips.forEach((p,j)=>{
+    p.classList.remove('active','done');
+    if(j<cur)p.classList.add('done');
+    if(j===cur)p.classList.add('active');
+  });
+  document.getElementById('prevBtn').disabled=cur===0;
+  document.getElementById('nextBtn').disabled=cur===tot-1;
+  document.getElementById('pgct').textContent=(cur+1)+' of '+tot;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function nav(d){const n=cur+d;if(n>=0&&n<tot)goTo(n);}
+
+const canvas=document.getElementById('sc');
+const ctx=canvas.getContext('2d');
+let stars=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+function initS(){stars=[];for(let i=0;i<160;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.2+0.2,a:Math.random(),sp:Math.random()*.008+.003,ph:Math.random()*Math.PI*2,w:Math.random()>.5});}
+function drawS(t){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.a=.2+.55*Math.abs(Math.sin(t*s.sp+s.ph));
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=s.w?`rgba(255,215,130,${s.a})`:`rgba(180,200,255,${s.a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawS);
+}
+resize();initS();requestAnimationFrame(drawS);
+window.addEventListener('resize',()=>{resize();initS();});
+
+(function buildLights(){
+  const svg=document.getElementById('lsvg');
+  const ns='http://www.w3.org/2000/svg';
+  const colors=['#ffd98a','#ffd98a','#a8c4ff','#ffd98a','#c8f0a8','#ffd98a','#ffb8d0'];
+  const rows=4;
+  const bpl=13;
+  for(let l=0;l<rows;l++){
+    const y0=8+l*4;
+    const amp=24+l*9;
+    const segW=680/bpl;
+    for(let i=0;i<bpl;i++){
+      const x1=i*segW,x2=(i+.5)*segW,x3=(i+1)*segW;
+      const my=y0+amp;
+      const path=document.createElementNS(ns,'path');
+      path.setAttribute('d',`M${x1},${y0} Q${x2},${my} ${x3},${y0}`);
+      path.setAttribute('fill','none');
+      path.setAttribute('stroke','#2a253d');
+      path.setAttribute('stroke-width','0.8');
+      svg.appendChild(path);
+      const color=colors[(i+l*3)%colors.length];
+      const gl=document.createElementNS(ns,'ellipse');
+      gl.setAttribute('cx',x2);gl.setAttribute('cy',my+3);
+      gl.setAttribute('rx','8');gl.setAttribute('ry','5');
+      gl.setAttribute('fill',color);gl.setAttribute('opacity','0.1');
+      svg.appendChild(gl);
+      const b=document.createElementNS(ns,'ellipse');
+      b.setAttribute('cx',x2);b.setAttribute('cy',my);
+      b.setAttribute('rx','3.5');b.setAttribute('ry','4.5');
+      b.setAttribute('fill',color);b.setAttribute('opacity','0.85');
+      b.style.animation=`bf ${2+Math.random()*3}s ease-in-out infinite`;
+      b.style.animationDelay=`${Math.random()*4}s`;
+      svg.appendChild(b);
+    }
+  }
+})();
+</script>
+</body>
+</html>
